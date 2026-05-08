@@ -1,0 +1,15 @@
+src/
+swift/
+node_modules/.cache/
+*.log
+.DS_Store
+.git/
+.github/
+.vscode/
+.idea/
+tsconfig.json
+vitest.config.ts
+pnpm-lock.yaml
+docs/
+*.mcpb
+ical-integration-prd.md

@@ -1,0 +1,10 @@
+node_modules/
+server/
+bin/
+swift/.build/
+swift/Package.resolved
+*.mcpb
+.DS_Store
+*.log
+.vscode/
+.idea/
