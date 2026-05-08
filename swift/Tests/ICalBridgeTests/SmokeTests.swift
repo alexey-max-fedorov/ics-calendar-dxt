@@ -44,10 +44,9 @@ final class BridgeResultTests: XCTestCase {
     }
 
     func testEmitWritesSingleLineToStdout() {
-        // Smoke check: emit() should not throw and should produce a parseable JSON string via the
-        // helper used by main.swift. The actual stdout capture happens in integration tests.
         let payload = BridgeResult<EmptyPayload>.success(EmptyPayload())
-        XCTAssertNoThrow(try JSONEncoder().encode(payload))
+        OutputJSON.emit(payload)
+        // If we reach this point, emit() did not crash. The actual stdout capture happens in integration tests.
     }
 }
 

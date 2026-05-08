@@ -53,7 +53,7 @@ enum OutputJSON {
             FileHandle.standardOutput.write(Data([0x0a]))
         } catch {
             let fallback = "{\"status\":\"error\",\"data\":null,\"error_code\":\"internal\",\"error_message\":\"JSON encode failed\"}\n"
-            FileHandle.standardOutput.write(fallback.data(using: .utf8)!)
+            FileHandle.standardOutput.write(fallback.data(using: .utf8) ?? Data())
         }
     }
 
