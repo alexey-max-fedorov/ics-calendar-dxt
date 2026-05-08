@@ -1,0 +1,71 @@
+{
+  "manifest_version": "0.3",
+  "name": "ical-integration",
+  "display_name": "iCal Integration",
+  "version": "1.0.0",
+  "description": "Read and write your Mac Calendar (including iCloud) directly from Claude, via Apple's native EventKit framework. No credentials required.",
+  "long_description": "iCal Integration gives Claude full access to your macOS Calendar database through Apple's EventKit framework, the same API used by Calendar.app and Fantastical. List calendars, fetch and search events, create, update, and delete events, and check your availability, all without entering any credentials. Any calendar visible in Calendar.app works, including iCloud, Google, Exchange, and local calendars.",
+  "author": {
+    "name": "Alexey Fedorov",
+    "email": "alexey.max.fedorov@gmail.com",
+    "url": "https://github.com/alexey-max-fedorov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexey-max-fedorov/ical-integration"
+  },
+  "homepage": "https://github.com/alexey-max-fedorov/ical-integration",
+  "documentation": "https://github.com/alexey-max-fedorov/ical-integration#readme",
+  "support": "https://github.com/alexey-max-fedorov/ical-integration/issues",
+  "icon": "icon.png",
+  "keywords": ["calendar", "ical", "icloud", "eventkit", "macos", "scheduling"],
+  "license": "LicenseRef-iCal-Integration",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "ICAL_BRIDGE_BIN": "${__dirname}/bin/ical-bridge"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "list_calendars",
+      "description": "List all calendars visible in Calendar.app (iCloud, Google, Exchange, local)."
+    },
+    {
+      "name": "get_events",
+      "description": "Fetch events within a date range, optionally filtered by calendar."
+    },
+    {
+      "name": "search_events",
+      "description": "Search events by keyword across a configurable time window."
+    },
+    {
+      "name": "create_event",
+      "description": "Create a new calendar event."
+    },
+    {
+      "name": "update_event",
+      "description": "Update fields of an existing event by its id."
+    },
+    {
+      "name": "delete_event",
+      "description": "Delete an event by its id."
+    },
+    {
+      "name": "get_availability",
+      "description": "Return free and busy blocks for a date range to support scheduling."
+    }
+  ],
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": ["darwin"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}
