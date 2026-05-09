@@ -220,21 +220,46 @@ extension ICalBridge {
         @Option var url: String?
         @Option(name: .customLong("calendar-id")) var calendarId: String?
         func run() throws {
-            let stub = EventPayload(
-                id: id,
-                title: title ?? "stub",
-                start: start ?? "2026-01-01T00:00:00Z",
-                end: end ?? "2026-01-01T01:00:00Z",
-                all_day: false,
-                calendar_id: calendarId ?? "stub-cal",
-                calendar_title: "Stub",
-                location: location,
-                notes: notes,
-                url: url,
-                is_recurring: false,
-                recurrence_rule: nil
-            )
-            OutputJSON.emit(BridgeResult.success(EventWrapperPayload(event: stub)))
+            do {
+                let store = CalendarStore()
+                try store.ensureAuthorization()
+                guard let ev = store.event(byId: id) else {
+                    throw BridgeError.notFound("event id \(id)")
+                }
+                guard ev.calendar?.allowsContentModifications == true else {
+                    throw BridgeError.readOnly("calendar \(ev.calendar?.title ?? "?") does not allow modifications")
+                }
+                if let t = title { ev.title = t }
+                if let s = start { ev.startDate = try EventMapper.parseISO(s) }
+                if let e = end { ev.endDate = try EventMapper.parseISO(e) }
+                if let l = location { ev.location = l }
+                if let n = notes { ev.notes = n }
+                if let u = url { ev.url = URL(string: u) }
+                if let cid = calendarId {
+                    guard let cal = store.calendar(byId: cid) else {
+                        throw BridgeError.notFound("calendar id \(cid)")
+                    }
+                    guard cal.allowsContentModifications else {
+                        throw BridgeError.readOnly("calendar \(cal.title) does not allow modifications")
+                    }
+                    ev.calendar = cal
+                }
+                if ev.endDate <= ev.startDate {
+                    throw BridgeError.invalidInput("end must be after start after applying updates")
+                }
+                let span: EKSpan = ev.hasRecurrenceRules ? .futureEvents : .thisEvent
+                do {
+                    try store.store.save(ev, span: span, commit: true)
+                } catch {
+                    throw BridgeError.saveFailed(error.localizedDescription)
+                }
+                let payload = EventWrapperPayload(event: EventMapper.mapEvent(ev))
+                OutputJSON.emit(BridgeResult.success(payload))
+            } catch let err as BridgeError {
+                OutputJSON.emit(BridgeResult<EventWrapperPayload>.error(err))
+            } catch {
+                OutputJSON.emit(BridgeResult<EventWrapperPayload>.error(.internalError(String(describing: error))))
+            }
         }
     }
 
