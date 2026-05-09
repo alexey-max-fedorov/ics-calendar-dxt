@@ -158,22 +158,54 @@ extension ICalBridge {
         @Option var location: String?
         @Option var notes: String?
         @Option var url: String?
+
         func run() throws {
-            let stub = EventPayload(
-                id: "stub-id",
-                title: title,
-                start: start,
-                end: end,
-                all_day: allDay,
-                calendar_id: calendarId ?? "stub-cal",
-                calendar_title: "Stub",
-                location: location,
-                notes: notes,
-                url: url,
-                is_recurring: false,
-                recurrence_rule: nil
-            )
-            OutputJSON.emit(BridgeResult.success(EventWrapperPayload(event: stub)))
+            do {
+                let store = CalendarStore()
+                try store.ensureAuthorization()
+                let startDate = try EventMapper.parseISO(start)
+                let endDate = try EventMapper.parseISO(end)
+                if endDate <= startDate {
+                    throw BridgeError.invalidInput("end must be after start")
+                }
+                let cal: EKCalendar
+                if let cid = calendarId {
+                    guard let resolved = store.calendar(byId: cid) else {
+                        throw BridgeError.notFound("calendar id \(cid)")
+                    }
+                    cal = resolved
+                } else {
+                    guard let def = store.store.defaultCalendarForNewEvents else {
+                        throw BridgeError.notFound("no default calendar for new events")
+                    }
+                    cal = def
+                }
+                guard cal.allowsContentModifications else {
+                    throw BridgeError.readOnly("calendar \(cal.title) does not allow modifications")
+                }
+                let ev = EKEvent(eventStore: store.store)
+                ev.calendar = cal
+                ev.title = title
+                ev.startDate = startDate
+                ev.endDate = endDate
+                ev.isAllDay = allDay
+                ev.location = location
+                ev.notes = notes
+                if let urlStr = url, let u = URL(string: urlStr) {
+                    ev.url = u
+                }
+                do {
+                    try store.store.save(ev, span: .thisEvent, commit: true)
+                } catch {
+                    throw BridgeError.saveFailed(error.localizedDescription)
+                }
+                let payload = EventWrapperPayload(event: EventMapper.mapEvent(ev))
+                OutputJSON.emit(BridgeResult.success(payload))
+            } catch let err as BridgeError {
+                OutputJSON.emit(BridgeResult<EventWrapperPayload>.error(err))
+            } catch {
+                OutputJSON.emit(BridgeResult<EventWrapperPayload>.error(.internalError(String(describing: error))))
+            }
         }
     }
 
