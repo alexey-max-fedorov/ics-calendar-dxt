@@ -23,23 +23,6 @@ struct StubDeletePayload: Encodable {
     let id: String
 }
 
-struct StubAvailabilityBlock: Encodable {
-    let start: String
-    let end: String
-    let title: String?
-}
-
-struct StubAvailabilityFreeBlock: Encodable {
-    let start: String
-    let end: String
-}
-
-struct StubAvailabilityPayload: Encodable {
-    let start: String
-    let end: String
-    let busy: [StubAvailabilityBlock]
-    let free: [StubAvailabilityFreeBlock]
-}
 
 extension ICalBridge {
     struct ListCalendars: ParsableCommand {
@@ -238,9 +221,47 @@ extension ICalBridge {
         @Option var end: String
         @Option(name: .customLong("calendar-ids")) var calendarIds: String?
         @Option var granularity: Int = 30
+
         func run() throws {
-            let payload = StubAvailabilityPayload(start: start, end: end, busy: [], free: [])
-            OutputJSON.emit(BridgeResult.success(payload))
+            do {
+                let store = CalendarStore()
+                try store.ensureAuthorization()
+                let startDate = try EventMapper.parseISO(start)
+                let endDate = try EventMapper.parseISO(end)
+                if endDate <= startDate {
+                    throw BridgeError.invalidInput("end must be after start")
+                }
+                let calendars: [EKCalendar]?
+                if let csv = calendarIds, !csv.isEmpty {
+                    let ids = csv.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) }
+                    var resolved: [EKCalendar] = []
+                    for cid in ids {
+                        guard let cal = store.calendar(byId: cid) else {
+                            throw BridgeError.notFound("calendar id \(cid)")
+                        }
+                        resolved.append(cal)
+                    }
+                    calendars = resolved
+                } else {
+                    calendars = nil
+                }
+                let predicate = store.store.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
+                let raw = store.store.events(matching: predicate).filter { !$0.isAllDay }
+                let busy = raw.map { BusyInterval(start: $0.startDate, end: $0.endDate, title: $0.title) }
+                let merged = Availability.merge(busy: busy, granularityMinutes: granularity)
+                let free = Availability.freeBlocks(rangeStart: startDate, rangeEnd: endDate, merged: merged)
+                let payload = AvailabilityResultPayload(
+                    start: EventMapper.formatISO(startDate),
+                    end: EventMapper.formatISO(endDate),
+                    busy: merged.map { AvailabilityBusyOut(start: EventMapper.formatISO($0.start), end: EventMapper.formatISO($0.end), title: $0.title) },
+                    free: free.map { AvailabilityFreeOut(start: EventMapper.formatISO($0.start), end: EventMapper.formatISO($0.end)) }
+                )
+                OutputJSON.emit(BridgeResult.success(payload))
+            } catch let err as BridgeError {
+                OutputJSON.emit(BridgeResult<AvailabilityResultPayload>.error(err))
+            } catch {
+                OutputJSON.emit(BridgeResult<AvailabilityResultPayload>.error(.internalError(String(describing: error))))
+            }
         }
     }
 }

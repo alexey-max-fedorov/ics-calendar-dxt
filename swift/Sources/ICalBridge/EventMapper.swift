@@ -105,3 +105,21 @@ extension EventMapper {
         )
     }
 }
+
+struct AvailabilityBusyOut: Encodable {
+    let start: String
+    let end: String
+    let title: String?
+}
+
+struct AvailabilityFreeOut: Encodable {
+    let start: String
+    let end: String
+}
+
+struct AvailabilityResultPayload: Encodable {
+    let start: String
+    let end: String
+    let busy: [AvailabilityBusyOut]
+    let free: [AvailabilityFreeOut]
+}
