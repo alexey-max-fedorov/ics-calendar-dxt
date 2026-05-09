@@ -1,6 +1,7 @@
 src/
 swift/
 node_modules/.cache/
+node_modules.dev/
 *.log
 .DS_Store
 .git/
