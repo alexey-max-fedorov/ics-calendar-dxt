@@ -51,7 +51,7 @@ export async function callBridge(args: string[], opts: CallOptions = {}): Promis
         error_code: 'internal',
         error_message: `Bridge binary timed out after ${timeoutMs}ms.`,
       });
-    }, timeoutMs + 5_000);
+    }, timeoutMs);
 
     child.stdout.on('data', (chunk) => { stdout += chunk.toString('utf8'); });
     child.stderr.on('data', (chunk) => {
