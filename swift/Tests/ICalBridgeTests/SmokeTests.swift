@@ -1,5 +1,6 @@
 import XCTest
 @testable import ICalBridge
+import EventKit
 
 final class BridgeErrorTests: XCTestCase {
     func testErrorCodes() {
@@ -51,3 +52,13 @@ final class BridgeResultTests: XCTestCase {
 }
 
 struct EmptyPayload: Encodable {}
+
+final class CalendarStoreTypeStringTests: XCTestCase {
+    func testTypeStringMappings() {
+        XCTAssertEqual(CalendarStore.typeString(.local), "local")
+        XCTAssertEqual(CalendarStore.typeString(.calDAV), "calDAV")
+        XCTAssertEqual(CalendarStore.typeString(.exchange), "exchange")
+        XCTAssertEqual(CalendarStore.typeString(.subscription), "subscription")
+        XCTAssertEqual(CalendarStore.typeString(.birthday), "birthday")
+    }
+}
