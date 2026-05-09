@@ -59,3 +59,49 @@ extension EventMapper {
         )
     }
 }
+
+struct EventPayload: Encodable {
+    let id: String
+    let title: String
+    let start: String
+    let end: String
+    let all_day: Bool
+    let calendar_id: String
+    let calendar_title: String
+    let location: String?
+    let notes: String?
+    let url: String?
+    let is_recurring: Bool
+    let recurrence_rule: String?
+}
+
+struct EventsPayload: Encodable {
+    let events: [EventPayload]
+    let count: Int
+    let truncated: Bool
+}
+
+struct EventWrapperPayload: Encodable {
+    let event: EventPayload
+}
+
+extension EventMapper {
+    static func mapEvent(_ ev: EKEvent) -> EventPayload {
+        let urlStr: String? = ev.url?.absoluteString
+        let recurrenceRule: String? = ev.hasRecurrenceRules ? "recurring" : nil
+        return EventPayload(
+            id: ev.calendarItemIdentifier,
+            title: ev.title ?? "",
+            start: formatISO(ev.startDate),
+            end: formatISO(ev.endDate),
+            all_day: ev.isAllDay,
+            calendar_id: ev.calendar?.calendarIdentifier ?? "",
+            calendar_title: ev.calendar?.title ?? "",
+            location: (ev.location?.isEmpty == false) ? ev.location : nil,
+            notes: (ev.notes?.isEmpty == false) ? ev.notes : nil,
+            url: urlStr,
+            is_recurring: ev.hasRecurrenceRules,
+            recurrence_rule: recurrenceRule
+        )
+    }
+}

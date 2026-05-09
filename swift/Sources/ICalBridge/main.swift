@@ -1,5 +1,6 @@
 import Foundation
 import ArgumentParser
+import EventKit
 
 struct ICalBridge: ParsableCommand {
     static let configuration = CommandConfiguration(
@@ -15,31 +16,6 @@ struct ICalBridge: ParsableCommand {
             GetAvailability.self
         ]
     )
-}
-
-struct StubEvent: Encodable {
-    let id: String
-    let title: String
-    let start: String
-    let end: String
-    let all_day: Bool
-    let calendar_id: String
-    let calendar_title: String
-    let location: String?
-    let notes: String?
-    let url: String?
-    let is_recurring: Bool
-    let recurrence_rule: String?
-}
-
-struct StubEventsPayload: Encodable {
-    let events: [StubEvent]
-    let count: Int
-    let truncated: Bool
-}
-
-struct StubEventWrapper: Encodable {
-    let event: StubEvent
 }
 
 struct StubDeletePayload: Encodable {
@@ -94,9 +70,46 @@ extension ICalBridge {
         @Option var end: String
         @Option(name: .customLong("calendar-id")) var calendarId: String?
         @Flag(name: .customLong("no-all-day")) var noAllDay: Bool = false
+
         func run() throws {
-            let payload = StubEventsPayload(events: [], count: 0, truncated: false)
-            OutputJSON.emit(BridgeResult.success(payload))
+            do {
+                let store = CalendarStore()
+                try store.ensureAuthorization()
+                let startDate = try EventMapper.parseISO(start)
+                let endDate = try EventMapper.parseISO(end)
+                if endDate <= startDate {
+                    throw BridgeError.invalidInput("end must be after start")
+                }
+                let twoYears: TimeInterval = 60 * 60 * 24 * 365 * 2
+                if endDate.timeIntervalSince(startDate) > twoYears {
+                    throw BridgeError.invalidInput("Range exceeds 2 years; use a tighter range.")
+                }
+                let calendars: [EKCalendar]?
+                if let cid = calendarId {
+                    guard let cal = store.calendar(byId: cid) else {
+                        throw BridgeError.notFound("calendar id \(cid)")
+                    }
+                    calendars = [cal]
+                } else {
+                    calendars = nil
+                }
+                let predicate = store.store.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
+                let raw = store.store.events(matching: predicate)
+                let filtered = raw.filter { !(noAllDay && $0.isAllDay) }
+                let limit = 500
+                let truncated = filtered.count > limit
+                let trimmed = Array(filtered.prefix(limit))
+                let payload = EventsPayload(
+                    events: trimmed.map(EventMapper.mapEvent),
+                    count: trimmed.count,
+                    truncated: truncated
+                )
+                OutputJSON.emit(BridgeResult.success(payload))
+            } catch let err as BridgeError {
+                OutputJSON.emit(BridgeResult<EventsPayload>.error(err))
+            } catch {
+                OutputJSON.emit(BridgeResult<EventsPayload>.error(.internalError(String(describing: error))))
+            }
         }
     }
 
@@ -107,7 +120,7 @@ extension ICalBridge {
         @Option var end: String?
         @Option(name: .customLong("calendar-id")) var calendarId: String?
         func run() throws {
-            let payload = StubEventsPayload(events: [], count: 0, truncated: false)
+            let payload = EventsPayload(events: [], count: 0, truncated: false)
             OutputJSON.emit(BridgeResult.success(payload))
         }
     }
@@ -123,7 +136,7 @@ extension ICalBridge {
         @Option var notes: String?
         @Option var url: String?
         func run() throws {
-            let stub = StubEvent(
+            let stub = EventPayload(
                 id: "stub-id",
                 title: title,
                 start: start,
@@ -137,7 +150,7 @@ extension ICalBridge {
                 is_recurring: false,
                 recurrence_rule: nil
             )
-            OutputJSON.emit(BridgeResult.success(StubEventWrapper(event: stub)))
+            OutputJSON.emit(BridgeResult.success(EventWrapperPayload(event: stub)))
         }
     }
 
@@ -152,7 +165,7 @@ extension ICalBridge {
         @Option var url: String?
         @Option(name: .customLong("calendar-id")) var calendarId: String?
         func run() throws {
-            let stub = StubEvent(
+            let stub = EventPayload(
                 id: id,
                 title: title ?? "stub",
                 start: start ?? "2026-01-01T00:00:00Z",
@@ -166,7 +179,7 @@ extension ICalBridge {
                 is_recurring: false,
                 recurrence_rule: nil
             )
-            OutputJSON.emit(BridgeResult.success(StubEventWrapper(event: stub)))
+            OutputJSON.emit(BridgeResult.success(EventWrapperPayload(event: stub)))
         }
     }
 
