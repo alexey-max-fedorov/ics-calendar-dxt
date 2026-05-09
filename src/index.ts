@@ -129,7 +129,7 @@ const handlers: Record<ToolName, ToolHandler> = {
       'get-availability',
       ...flag('start', a.start),
       ...flag('end', a.end),
-      ...flag('calendar-ids', Array.isArray(a.calendar_ids) ? (a.calendar_ids as string[]).join(',') : undefined),
+      ...flag('calendar-ids', Array.isArray(a.calendar_ids) && (a.calendar_ids as string[]).length > 0 ? (a.calendar_ids as string[]).join(',') : undefined),
       ...flag('granularity', a.granularity_minutes ?? 30),
     ],
   },
