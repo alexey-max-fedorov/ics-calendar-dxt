@@ -13,7 +13,16 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ],
-            path: "Sources/ICalBridge"
+            path: "Sources/ICalBridge",
+            exclude: ["Info.plist"],
+            linkerSettings: [
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "__info_plist",
+                    "-Xlinker", "Sources/ICalBridge/Info.plist"
+                ])
+            ]
         ),
         .testTarget(
             name: "ICalBridgeTests",
