@@ -22,7 +22,7 @@ function withBin(p: string, fn: () => Promise<void>) {
 
 describe('callBridge', () => {
   it('returns parsed success payload from list-calendars', withBin(
-    resolve(fixtures, 'stub-calendars.sh'),
+    resolve(fixtures, 'stub-calendars.app'),
     async () => {
       const out: BridgeOutcome = await callBridge(['list-calendars']);
       expect(out.status).toBe('success');
@@ -33,7 +33,7 @@ describe('callBridge', () => {
   ));
 
   it('returns parsed events payload', withBin(
-    resolve(fixtures, 'stub-events.sh'),
+    resolve(fixtures, 'stub-events.app'),
     async () => {
       const out = await callBridge(['get-events', '--start', 'a', '--end', 'b']);
       expect(out.status).toBe('success');
@@ -43,7 +43,7 @@ describe('callBridge', () => {
   ));
 
   it('returns parsed create payload', withBin(
-    resolve(fixtures, 'stub-create.sh'),
+    resolve(fixtures, 'stub-create.app'),
     async () => {
       const out = await callBridge(['create-event']);
       expect(out.status).toBe('success');
@@ -53,7 +53,7 @@ describe('callBridge', () => {
   ));
 
   it('surfaces permission_denied as a structured error', withBin(
-    resolve(fixtures, 'stub-error.sh'),
+    resolve(fixtures, 'stub-error.app'),
     async () => {
       const out = await callBridge(['list-calendars']);
       expect(out.status).toBe('error');
@@ -64,7 +64,7 @@ describe('callBridge', () => {
   ));
 
   it('surfaces non-JSON stdout as an internal error', withBin(
-    resolve(fixtures, 'stub-crash.sh'),
+    resolve(fixtures, 'stub-crash.app'),
     async () => {
       const out = await callBridge(['list-calendars']);
       expect(out.status).toBe('error');
@@ -75,7 +75,7 @@ describe('callBridge', () => {
   ));
 
   it('errors clearly when ICAL_BRIDGE_BIN is missing', withBin(
-    resolve(fixtures, 'does-not-exist.sh'),
+    resolve(fixtures, 'does-not-exist.app'),
     async () => {
       const out = await callBridge(['list-calendars']);
       expect(out.status).toBe('error');

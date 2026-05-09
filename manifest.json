@@ -27,7 +27,7 @@
       "command": "node",
       "args": ["${__dirname}/server/index.js"],
       "env": {
-        "ICAL_BRIDGE_BIN": "${__dirname}/bin/ical-bridge"
+        "ICAL_BRIDGE_BIN": "${__dirname}/bin/ICalBridge.app"
       }
     }
   },

@@ -14,7 +14,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ],
             path: "Sources/ICalBridge",
-            exclude: ["Info.plist"],
+            exclude: ["Info.plist", "BundleInfo.plist"],
             linkerSettings: [
                 .unsafeFlags([
                     "-Xlinker", "-sectcreate",
