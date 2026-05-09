@@ -152,7 +152,7 @@ export const toolJsonSchemas = {
         description: 'Optional. Restrict to specific calendar ids. Defaults to all event calendars.',
       },
       granularity_minutes: {
-        type: 'number',
+        type: 'integer',
         default: 30,
         minimum: 15,
         maximum: 120,
