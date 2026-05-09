@@ -17,20 +17,6 @@ struct ICalBridge: ParsableCommand {
     )
 }
 
-struct StubCalendar: Encodable {
-    let id: String
-    let title: String
-    let color: String
-    let type: String
-    let account: String
-    let is_default: Bool
-}
-
-struct StubCalendarsPayload: Encodable {
-    let calendars: [StubCalendar]
-    let count: Int
-}
-
 struct StubEvent: Encodable {
     let id: String
     let title: String
@@ -84,8 +70,21 @@ extension ICalBridge {
         static let configuration = CommandConfiguration(commandName: "list-calendars")
         @Option var type: String = "event"
         func run() throws {
-            let payload = StubCalendarsPayload(calendars: [], count: 0)
-            OutputJSON.emit(BridgeResult.success(payload))
+            do {
+                let store = CalendarStore()
+                try store.ensureAuthorization()
+                let cals = store.eventCalendars(typeFilter: type)
+                let defaultId = store.store.defaultCalendarForNewEvents?.calendarIdentifier
+                let payload = CalendarsPayload(
+                    calendars: cals.map { EventMapper.mapCalendar($0, defaultId: defaultId) },
+                    count: cals.count
+                )
+                OutputJSON.emit(BridgeResult.success(payload))
+            } catch let err as BridgeError {
+                OutputJSON.emit(BridgeResult<CalendarsPayload>.error(err))
+            } catch {
+                OutputJSON.emit(BridgeResult<CalendarsPayload>.error(.internalError(String(describing: error))))
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 import Foundation
+import EventKit
 
 enum EventMapper {
     private static let formatters: [ISO8601DateFormatter] = [
@@ -29,5 +30,32 @@ enum EventMapper {
 
     static func formatISO(_ d: Date) -> String {
         outputFormatter.string(from: d)
+    }
+}
+
+struct CalendarPayload: Encodable {
+    let id: String
+    let title: String
+    let color: String
+    let type: String
+    let account: String
+    let is_default: Bool
+}
+
+struct CalendarsPayload: Encodable {
+    let calendars: [CalendarPayload]
+    let count: Int
+}
+
+extension EventMapper {
+    static func mapCalendar(_ cal: EKCalendar, defaultId: String?) -> CalendarPayload {
+        CalendarPayload(
+            id: cal.calendarIdentifier,
+            title: cal.title,
+            color: CalendarStore.hexColor(from: cal.cgColor),
+            type: CalendarStore.typeString(cal.type),
+            account: cal.source.title,
+            is_default: cal.calendarIdentifier == defaultId
+        )
     }
 }
