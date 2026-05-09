@@ -119,9 +119,49 @@ extension ICalBridge {
         @Option var start: String?
         @Option var end: String?
         @Option(name: .customLong("calendar-id")) var calendarId: String?
+
         func run() throws {
-            let payload = EventsPayload(events: [], count: 0, truncated: false)
-            OutputJSON.emit(BridgeResult.success(payload))
+            do {
+                let store = CalendarStore()
+                try store.ensureAuthorization()
+                let now = Date()
+                let startDate = try start.map { try EventMapper.parseISO($0) } ?? now.addingTimeInterval(-60*60*24*90)
+                let endDate = try end.map { try EventMapper.parseISO($0) } ?? now.addingTimeInterval(60*60*24*365)
+                if endDate <= startDate {
+                    throw BridgeError.invalidInput("end must be after start")
+                }
+                let calendars: [EKCalendar]?
+                if let cid = calendarId {
+                    guard let cal = store.calendar(byId: cid) else {
+                        throw BridgeError.notFound("calendar id \(cid)")
+                    }
+                    calendars = [cal]
+                } else {
+                    calendars = nil
+                }
+                let predicate = store.store.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
+                let raw = store.store.events(matching: predicate)
+                let needle = query.lowercased()
+                let matched = raw.filter { ev in
+                    let t = (ev.title ?? "").lowercased()
+                    let l = (ev.location ?? "").lowercased()
+                    let n = (ev.notes ?? "").lowercased()
+                    return t.contains(needle) || l.contains(needle) || n.contains(needle)
+                }
+                let limit = 500
+                let truncated = matched.count > limit
+                let trimmed = Array(matched.prefix(limit))
+                let payload = EventsPayload(
+                    events: trimmed.map(EventMapper.mapEvent),
+                    count: trimmed.count,
+                    truncated: truncated
+                )
+                OutputJSON.emit(BridgeResult.success(payload))
+            } catch let err as BridgeError {
+                OutputJSON.emit(BridgeResult<EventsPayload>.error(err))
+            } catch {
+                OutputJSON.emit(BridgeResult<EventsPayload>.error(.internalError(String(describing: error))))
+            }
         }
     }
 
