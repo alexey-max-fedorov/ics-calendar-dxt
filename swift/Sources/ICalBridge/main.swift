@@ -18,11 +18,6 @@ struct ICalBridge: ParsableCommand {
     )
 }
 
-struct StubDeletePayload: Encodable {
-    let deleted: Bool
-    let id: String
-}
-
 
 extension ICalBridge {
     struct ListCalendars: ParsableCommand {
@@ -267,8 +262,32 @@ extension ICalBridge {
         static let configuration = CommandConfiguration(commandName: "delete-event")
         @Option var id: String
         @Option var span: String = "this_only"
+
         func run() throws {
-            OutputJSON.emit(BridgeResult.success(StubDeletePayload(deleted: true, id: id)))
+            do {
+                let store = CalendarStore()
+                try store.ensureAuthorization()
+                guard let ev = store.event(byId: id) else {
+                    throw BridgeError.notFound("event id \(id)")
+                }
+                guard ev.calendar?.allowsContentModifications == true else {
+                    throw BridgeError.readOnly("calendar \(ev.calendar?.title ?? "?") does not allow modifications")
+                }
+                let ekSpan: EKSpan = (span == "all") ? .futureEvents : .thisEvent
+                do {
+                    try store.store.remove(ev, span: ekSpan, commit: true)
+                } catch {
+                    throw BridgeError.saveFailed(error.localizedDescription)
+                }
+                struct Out: Encodable { let deleted: Bool; let id: String }
+                OutputJSON.emit(BridgeResult.success(Out(deleted: true, id: id)))
+            } catch let err as BridgeError {
+                struct Out: Encodable { let deleted: Bool; let id: String }
+                OutputJSON.emit(BridgeResult<Out>.error(err))
+            } catch {
+                struct Out: Encodable { let deleted: Bool; let id: String }
+                OutputJSON.emit(BridgeResult<Out>.error(.internalError(String(describing: error))))
+            }
         }
     }
 
