@@ -9,13 +9,13 @@ import { callBridge, BridgeOutcome } from '../bridge.js';
 
 function withBin(p: string, fn: () => Promise<void>) {
   return async () => {
-    const prev = process.env.ICAL_BRIDGE_BIN;
-    process.env.ICAL_BRIDGE_BIN = p;
+    const prev = process.env.ICS_BRIDGE_BIN;
+    process.env.ICS_BRIDGE_BIN = p;
     try {
       await fn();
     } finally {
-      if (prev === undefined) delete process.env.ICAL_BRIDGE_BIN;
-      else process.env.ICAL_BRIDGE_BIN = prev;
+      if (prev === undefined) delete process.env.ICS_BRIDGE_BIN;
+      else process.env.ICS_BRIDGE_BIN = prev;
     }
   };
 }
@@ -74,7 +74,7 @@ describe('callBridge', () => {
     }
   ));
 
-  it('errors clearly when ICAL_BRIDGE_BIN is missing', withBin(
+  it('errors clearly when ICS_BRIDGE_BIN is missing', withBin(
     resolve(fixtures, 'does-not-exist.app'),
     async () => {
       const out = await callBridge(['list-calendars']);
@@ -84,16 +84,16 @@ describe('callBridge', () => {
     }
   ));
 
-  it('errors when ICAL_BRIDGE_BIN env var is unset', async () => {
-    const prev = process.env.ICAL_BRIDGE_BIN;
-    delete process.env.ICAL_BRIDGE_BIN;
+  it('errors when ICS_BRIDGE_BIN env var is unset', async () => {
+    const prev = process.env.ICS_BRIDGE_BIN;
+    delete process.env.ICS_BRIDGE_BIN;
     try {
       const out = await callBridge(['list-calendars']);
       expect(out.status).toBe('error');
       if (out.status !== 'error') throw new Error('unreachable');
-      expect(out.error_message.toLowerCase()).toMatch(/ical_bridge_bin/);
+      expect(out.error_message.toLowerCase()).toMatch(/ics_bridge_bin/);
     } finally {
-      if (prev !== undefined) process.env.ICAL_BRIDGE_BIN = prev;
+      if (prev !== undefined) process.env.ICS_BRIDGE_BIN = prev;
     }
   });
 });

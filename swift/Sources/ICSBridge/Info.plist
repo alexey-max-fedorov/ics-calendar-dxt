@@ -3,16 +3,16 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>com.alexey-max-fedorov.ical-bridge</string>
+    <string>com.alexey-max-fedorov.ics-calendar-bridge</string>
     <key>CFBundleName</key>
-    <string>iCal Integration Bridge</string>
+    <string>ICS Calendar Bridge</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0.0</string>
     <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>iCal Integration reads and writes your calendars so Claude can help you schedule, plan, and manage events.</string>
+    <string>ICS Calendar reads and writes your calendars so Claude can help you schedule, plan, and manage events.</string>
     <key>NSCalendarsUsageDescription</key>
-    <string>iCal Integration reads your calendars so Claude can help you schedule and plan.</string>
+    <string>ICS Calendar reads your calendars so Claude can help you schedule and plan.</string>
 </dict>
 </plist>

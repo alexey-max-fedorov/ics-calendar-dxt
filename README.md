@@ -1,4 +1,4 @@
-# iCal Integration
+# ICS Calendar
 
 A Claude Desktop Extension that gives Claude full read and write access to your macOS Calendar (including any iCloud, Google, or Exchange calendars visible in Calendar.app) via Apple's native EventKit framework.
 

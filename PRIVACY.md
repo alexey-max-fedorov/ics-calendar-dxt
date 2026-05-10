@@ -1,6 +1,6 @@
 # Privacy Policy
 
-iCal Integration is an MCP server that runs entirely on your local machine.
+ICS Calendar is an MCP server that runs entirely on your local machine.
 
 ## Data handling
 
@@ -12,7 +12,7 @@ iCal Integration is an MCP server that runs entirely on your local machine.
 
 ## Permissions
 
-iCal Integration requests full access to your calendars (read and write). Without that permission the extension cannot list events or create new ones. There is no "read only" mode in v1.
+ICS Calendar requests full access to your calendars (read and write). Without that permission the extension cannot list events or create new ones. There is no "read only" mode in v1.
 
 ## Contact
 

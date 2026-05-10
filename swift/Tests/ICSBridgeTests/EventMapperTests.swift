@@ -1,5 +1,5 @@
 import XCTest
-@testable import ICalBridge
+@testable import ICSBridge
 
 final class EventMapperParseISOTests: XCTestCase {
     func testParseISOWithOffset() throws {

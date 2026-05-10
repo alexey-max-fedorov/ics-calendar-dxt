@@ -1,5 +1,5 @@
 import XCTest
-@testable import ICalBridge
+@testable import ICSBridge
 import EventKit
 
 final class BridgeErrorTests: XCTestCase {

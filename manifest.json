@@ -1,10 +1,10 @@
 {
   "manifest_version": "0.3",
-  "name": "ical-integration",
-  "display_name": "iCal Integration",
+  "name": "ics-calendar",
+  "display_name": "ICS Calendar",
   "version": "1.0.0",
   "description": "Read and write your Mac Calendar (including iCloud) directly from Claude, via Apple's native EventKit framework. No credentials required.",
-  "long_description": "iCal Integration gives Claude full access to your macOS Calendar database through Apple's EventKit framework, the same API used by Calendar.app and Fantastical. List calendars, fetch and search events, create, update, and delete events, and check your availability, all without entering any credentials. Any calendar visible in Calendar.app works, including iCloud, Google, Exchange, and local calendars.",
+  "long_description": "ICS Calendar gives Claude full access to your macOS Calendar database through Apple's EventKit framework, the same API used by Calendar.app and Fantastical. List calendars, fetch and search events, create, update, and delete events, and check your availability, all without entering any credentials. Any calendar visible in Calendar.app works, including iCloud, Google, Exchange, and local calendars.",
   "author": {
     "name": "Alexey Fedorov",
     "email": "alexey.max.fedorov@gmail.com",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexey-max-fedorov/ical-integration"
+    "url": "https://github.com/alexey-max-fedorov/ics-calendar"
   },
-  "homepage": "https://github.com/alexey-max-fedorov/ical-integration",
-  "documentation": "https://github.com/alexey-max-fedorov/ical-integration#readme",
-  "support": "https://github.com/alexey-max-fedorov/ical-integration/issues",
+  "homepage": "https://github.com/alexey-max-fedorov/ics-calendar",
+  "documentation": "https://github.com/alexey-max-fedorov/ics-calendar#readme",
+  "support": "https://github.com/alexey-max-fedorov/ics-calendar/issues",
   "icon": "icon.png",
   "keywords": ["calendar", "ical", "icloud", "eventkit", "macos", "scheduling"],
-  "license": "LicenseRef-iCal-Integration",
+  "license": "LicenseRef-ICS-Calendar",
   "server": {
     "type": "node",
     "entry_point": "server/index.js",
@@ -27,7 +27,7 @@
       "command": "node",
       "args": ["${__dirname}/server/index.js"],
       "env": {
-        "ICAL_BRIDGE_BIN": "${__dirname}/bin/ICalBridge.app"
+        "ICS_BRIDGE_BIN": "${__dirname}/bin/ICSBridge.app"
       }
     }
   },

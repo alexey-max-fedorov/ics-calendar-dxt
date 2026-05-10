@@ -1,5 +1,5 @@
 {
-  "name": "ical-integration",
+  "name": "ics-calendar",
   "version": "1.0.0",
   "type": "module",
   "main": "server/index.js",

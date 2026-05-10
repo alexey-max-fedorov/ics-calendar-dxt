@@ -15,12 +15,12 @@ interface CallOptions {
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 export async function callBridge(args: string[], opts: CallOptions = {}): Promise<BridgeOutcome> {
-  const bin = process.env.ICAL_BRIDGE_BIN;
+  const bin = process.env.ICS_BRIDGE_BIN;
   if (!bin) {
     return {
       status: 'error',
       error_code: 'internal',
-      error_message: 'ICAL_BRIDGE_BIN environment variable is not set.',
+      error_message: 'ICS_BRIDGE_BIN environment variable is not set.',
     };
   }
   if (!existsSync(bin)) {
@@ -36,8 +36,8 @@ export async function callBridge(args: string[], opts: CallOptions = {}): Promis
   return new Promise<BridgeOutcome>(async (resolveResult) => {
     const tmpDir = os.tmpdir();
     const id = `${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const stdoutPath = path.join(tmpDir, `ical-bridge-stdout-${id}.json`);
-    const stderrPath = path.join(tmpDir, `ical-bridge-stderr-${id}.log`);
+    const stdoutPath = path.join(tmpDir, `ics-bridge-stdout-${id}.json`);
+    const stderrPath = path.join(tmpDir, `ics-bridge-stderr-${id}.log`);
 
     let settled = false;
     const settle = (out: BridgeOutcome) => {

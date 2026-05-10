@@ -2,10 +2,10 @@ import Foundation
 import ArgumentParser
 import EventKit
 
-struct ICalBridge: ParsableCommand {
+struct ICSBridge: ParsableCommand {
     static let configuration = CommandConfiguration(
-        commandName: "ical-bridge",
-        abstract: "iCal Integration EventKit bridge",
+        commandName: "ics-bridge",
+        abstract: "ICS Calendar EventKit bridge",
         subcommands: [
             ListCalendars.self,
             GetEvents.self,
@@ -20,7 +20,7 @@ struct ICalBridge: ParsableCommand {
 }
 
 
-extension ICalBridge {
+extension ICSBridge {
     struct ListCalendars: ParsableCommand {
         static let configuration = CommandConfiguration(commandName: "list-calendars")
         @Option var type: String = "event"
@@ -404,4 +404,4 @@ extension ICalBridge {
     }
 }
 
-ICalBridge.main()
+ICSBridge.main()
