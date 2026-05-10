@@ -12,11 +12,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexey-max-fedorov/ics-calendar"
+    "url": "https://github.com/alexey-max-fedorov/ics-calendar-dxt"
   },
-  "homepage": "https://github.com/alexey-max-fedorov/ics-calendar",
-  "documentation": "https://github.com/alexey-max-fedorov/ics-calendar#readme",
-  "support": "https://github.com/alexey-max-fedorov/ics-calendar/issues",
+  "homepage": "https://github.com/alexey-max-fedorov/ics-calendar-dxt",
+  "documentation": "https://github.com/alexey-max-fedorov/ics-calendar-dxt#readme",
+  "support": "https://github.com/alexey-max-fedorov/ics-calendar-dxt/issues",
   "icon": "icon.png",
   "keywords": ["calendar", "ical", "icloud", "eventkit", "macos", "scheduling"],
   "license": "LicenseRef-ICS-Calendar",
