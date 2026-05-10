@@ -27,5 +27,13 @@ pnpm install --prod --shamefully-hoist --no-frozen-lockfile
 echo "==> Packing .mcpb via @anthropic-ai/mcpb"
 npx -y @anthropic-ai/mcpb pack
 
+# mcpb names the output after the working directory.
+# We want ics-calendar-dxt.mcpb regardless of what the dir is called locally.
+TARGET_NAME="ics-calendar-dxt.mcpb"
+PACKED=$(ls -1 ./*.mcpb | head -1)
+if [ -n "$PACKED" ] && [ "$PACKED" != "./$TARGET_NAME" ]; then
+  mv "$PACKED" "./$TARGET_NAME"
+fi
+
 echo "==> .mcpb produced:"
 ls -1 ./*.mcpb
