@@ -18,6 +18,7 @@ enum EventMapper {
     private static let outputFormatter: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime]
+        f.timeZone = TimeZone.current
         return f
     }()
 

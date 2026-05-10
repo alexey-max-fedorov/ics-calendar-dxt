@@ -10,6 +10,7 @@ import {
   CreateEventInput,
   DeleteEventInput,
   GetAvailabilityInput,
+  GetCurrentDatetimeInput,
   GetEventsInput,
   ListCalendarsInput,
   SearchEventsInput,
@@ -132,6 +133,13 @@ const handlers: Record<ToolName, ToolHandler> = {
       ...flag('calendar-ids', Array.isArray(a.calendar_ids) && (a.calendar_ids as string[]).length > 0 ? (a.calendar_ids as string[]).join(',') : undefined),
       ...flag('granularity', a.granularity_minutes ?? 30),
     ],
+  },
+  get_current_datetime: {
+    name: 'get_current_datetime',
+    description: toolDescriptions.get_current_datetime,
+    inputSchema: toolJsonSchemas.get_current_datetime,
+    zod: GetCurrentDatetimeInput,
+    build: () => ['get-current-datetime'],
   },
 };
 

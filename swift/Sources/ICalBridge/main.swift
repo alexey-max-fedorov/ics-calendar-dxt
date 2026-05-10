@@ -13,7 +13,8 @@ struct ICalBridge: ParsableCommand {
             CreateEvent.self,
             UpdateEvent.self,
             DeleteEvent.self,
-            GetAvailability.self
+            GetAvailability.self,
+            GetCurrentDatetime.self
         ]
     )
 }
@@ -338,6 +339,67 @@ extension ICalBridge {
             } catch {
                 OutputJSON.emit(BridgeResult<AvailabilityResultPayload>.error(.internalError(String(describing: error))))
             }
+        }
+    }
+    struct GetCurrentDatetime: ParsableCommand {
+        static let configuration = CommandConfiguration(commandName: "get-current-datetime")
+
+        func run() throws {
+            struct Payload: Encodable {
+                let iso_local: String
+                let iso_utc: String
+                let timezone: String
+                let timezone_offset: String
+                let weekday: String
+                let date: String
+                let time: String
+                let unix_timestamp: Double
+            }
+
+            let now = Date()
+            let tz = TimeZone.current
+
+            let localFmt = ISO8601DateFormatter()
+            localFmt.formatOptions = [.withInternetDateTime]
+            localFmt.timeZone = tz
+
+            let utcFmt = ISO8601DateFormatter()
+            utcFmt.formatOptions = [.withInternetDateTime]
+            utcFmt.timeZone = TimeZone(identifier: "UTC")!
+
+            let weekdayFmt = DateFormatter()
+            weekdayFmt.dateFormat = "EEEE"
+            weekdayFmt.timeZone = tz
+            weekdayFmt.locale = Locale(identifier: "en_US_POSIX")
+
+            let dateFmt = DateFormatter()
+            dateFmt.dateFormat = "yyyy-MM-dd"
+            dateFmt.timeZone = tz
+            dateFmt.locale = Locale(identifier: "en_US_POSIX")
+
+            let timeFmt = DateFormatter()
+            timeFmt.dateFormat = "HH:mm:ss"
+            timeFmt.timeZone = tz
+            timeFmt.locale = Locale(identifier: "en_US_POSIX")
+
+            let offsetSec = tz.secondsFromGMT(for: now)
+            let sign = offsetSec >= 0 ? "+" : "-"
+            let absOff = abs(offsetSec)
+            let hours = absOff / 3600
+            let minutes = (absOff % 3600) / 60
+            let offsetStr = String(format: "%@%02d:%02d", sign, hours, minutes)
+
+            let payload = Payload(
+                iso_local: localFmt.string(from: now),
+                iso_utc: utcFmt.string(from: now),
+                timezone: tz.identifier,
+                timezone_offset: offsetStr,
+                weekday: weekdayFmt.string(from: now),
+                date: dateFmt.string(from: now),
+                time: timeFmt.string(from: now),
+                unix_timestamp: now.timeIntervalSince1970
+            )
+            OutputJSON.emit(BridgeResult.success(payload))
         }
     }
 }

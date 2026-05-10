@@ -59,6 +59,10 @@
     {
       "name": "get_availability",
       "description": "Return free and busy blocks for a date range to support scheduling."
+    },
+    {
+      "name": "get_current_datetime",
+      "description": "Return the current local date, time, and timezone of the host machine."
     }
   ],
   "compatibility": {

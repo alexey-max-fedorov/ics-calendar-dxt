@@ -54,6 +54,8 @@ export const GetAvailabilityInput = z.object({
   granularity_minutes: z.number().int().min(15).max(120).optional(),
 }).strict();
 
+export const GetCurrentDatetimeInput = z.object({}).strict();
+
 export type ListCalendarsArgs = z.infer<typeof ListCalendarsInput>;
 export type GetEventsArgs = z.infer<typeof GetEventsInput>;
 export type SearchEventsArgs = z.infer<typeof SearchEventsInput>;
@@ -61,6 +63,7 @@ export type CreateEventArgs = z.infer<typeof CreateEventInput>;
 export type UpdateEventArgs = z.infer<typeof UpdateEventInput>;
 export type DeleteEventArgs = z.infer<typeof DeleteEventInput>;
 export type GetAvailabilityArgs = z.infer<typeof GetAvailabilityInput>;
+export type GetCurrentDatetimeArgs = z.infer<typeof GetCurrentDatetimeInput>;
 
 export const toolJsonSchemas = {
   list_calendars: {
@@ -162,6 +165,11 @@ export const toolJsonSchemas = {
     required: ['start', 'end'],
     additionalProperties: false,
   },
+  get_current_datetime: {
+    type: 'object',
+    properties: {},
+    additionalProperties: false,
+  },
 } as const;
 
 export const toolDescriptions = {
@@ -172,6 +180,7 @@ export const toolDescriptions = {
   update_event: 'Update fields of an existing event by its id.',
   delete_event: 'Delete an event by its id.',
   get_availability: 'Return free and busy blocks for a date range to support scheduling.',
+  get_current_datetime: 'Return the current local date, time, and timezone (the system clock of the machine running the extension).',
 } as const;
 
 export type ToolName = keyof typeof toolJsonSchemas;
