@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+    assignees:
+      - alexey-max-fedorov
+    commit-message:
+      prefix: '[root]'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    assignees:
+      - alexey-max-fedorov
+    commit-message:
+      prefix: '[github-actions]'
