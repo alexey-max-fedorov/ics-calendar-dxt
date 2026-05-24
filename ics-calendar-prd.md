@@ -962,9 +962,9 @@ Suggested strings:
   },
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8"
+    "pnpm": ">=11"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@11.2.2"
 }
 ```
 
