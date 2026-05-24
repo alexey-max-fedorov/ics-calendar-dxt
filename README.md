@@ -60,7 +60,7 @@ See LICENSE. Noncommercial use only; contact the author for commercial licensing
 
 ## Build from source
 
-Requirements: Node 18+, pnpm 9, Swift 5.9+, Xcode command line tools.
+Requirements: Node 18+, pnpm 11.2.2, Swift 5.9+, Xcode command line tools.
 
 ```bash
 pnpm install
