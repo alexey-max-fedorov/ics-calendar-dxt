@@ -21,7 +21,7 @@
     "@types/node": "^25.9.1",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
-    "vitest": "^1.6.1"
+    "vitest": "^4.1.7"
   },
   "engines": {
     "node": ">=18",
