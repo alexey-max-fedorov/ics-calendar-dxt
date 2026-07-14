@@ -4,10 +4,15 @@ updates:
     directory: /
     schedule:
       interval: daily
+    cooldown:
+      default-days: 1
     assignees:
       - alexey-max-fedorov
     commit-message:
       prefix: '[root]'
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /

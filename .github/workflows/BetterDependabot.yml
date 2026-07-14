@@ -21,7 +21,12 @@ jobs:
 
       - name: Update dependencies in root
         working-directory: .
-        run: pnpm update --latest
+        # Exclude typescript from the unconstrained "--latest" sweep: this repo's
+        # tsconfig.json relies on the "node" moduleResolution mode that TypeScript 7
+        # removed (TS5108), so `--latest` (which ignores the package.json range)
+        # previously bumped typescript straight to the incompatible v7 major and
+        # broke `build:server`. Keep typescript pinned to 6.0.3; bump deliberately.
+        run: pnpm update --latest '!typescript'
 
       - name: Commit changes
         run: |
